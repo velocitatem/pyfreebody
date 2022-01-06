@@ -27,8 +27,10 @@ def freebody(schema):
 
     now = datetime.now()
     dtstr = now.strftime("%d-%m-%Y %H:%M:%S")
-#    img.save("pyfreebody["+dtstr+"].png")
-    img.show()
+    path = "pyfreebody-"+schema['name']+".png"
+    img.save(path)
+    return path
+#    img.show()
 
 size = 600
 arrowHeadSize = 15

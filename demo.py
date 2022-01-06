@@ -2,6 +2,7 @@ import freebody
 import math
 
 testObj = {
+    "name":"test",
     "forces": [
         {
             "name": "Friction",
