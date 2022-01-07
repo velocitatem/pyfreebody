@@ -15,7 +15,7 @@ class Direction(enum.Enum):
 class Freebody:
 
 
-    def __init__ (self,name, mass):
+    def __init__ (self,name="empty", mass=24):
         self.schema = {"name":"", "mass": 0, "forces":[]}
         self.schema["name"] = name;
         self.schema['mass'] = mass
