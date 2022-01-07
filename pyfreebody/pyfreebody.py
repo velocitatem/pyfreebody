@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 import math
 from datetime import datetime
 import enum
+import os
 
 
 class Body:
@@ -63,9 +64,11 @@ class Freebody:
 
                 i+=1
 
-            #TODO optional shapes
             canvas.rectangle(((center*0.8, center*0.8), (center*1.2, center*1.2)),
                              outline = black)
+
+            canvas.ellipse(((center*0.96, center*0.96), (center*1.04, center*1.04)),
+                           outline = black, fill = black)
 
             masstxt  = str(self.body.mass) + "kg"
             mtsw, mtsh = canvas.textsize(masstxt, font = font)
@@ -89,7 +92,12 @@ rectW = size * 0.4
 black = (0,0,0)
 white = (225,225,225)
 
-font = ImageFont.truetype("/usr/share/fonts/noto/NotoSans-Regular.ttf", 20)
+home = os.path.expanduser("~")
+font = ImageFont.truetype(home+"/pyfreebody.ttf", 20)
+#font = ImageFont.load_default()
+#font.size = 20
+fontTag = ImageFont.truetype(home+"/pyfreebody.ttf", 12)
+#fontTag = font
 
 def randomColor():
     return (randint(0, 180),
@@ -104,6 +112,10 @@ def ArrowCordinates(force):
     xc = m * math.cos(theta)
     return ((center, center), (center+ xc, center - yc))
 
+
+def tagCordinates(arrowCords):
+    x, y = arrowCords[1][0], arrowCords[1][1]
+    return ((x*1.06), (y*1.06))
 
 # faulty
 def ArrowHeadCordinates(arrowCords):
@@ -124,9 +136,10 @@ def ForceLegend(canvas, force, i, color):
 def CreatArrow(canvas, force, color):
     arrowBase = ArrowCordinates(force)
     canvas.line(arrowBase, width=10, fill = color)
+    canvas.text(tagCordinates(arrowBase), "F"+(force.name[0:1]).lower(), font=fontTag, fill = black)
     #canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
 
-body = Freebody("test1", 30, SystemType.basic) # name, mass
+body = Freebody("Demostration of pyFreeBody", 30, SystemType.basic) # name, mass
 
 body.addForce("Normal", 300, Direction.up) # name, magnitude, theta
 body.addForce("Pull", 2, math.pi /4 ) # name, magnitude, theta
