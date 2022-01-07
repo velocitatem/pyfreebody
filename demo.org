@@ -1,0 +1,32 @@
+#+TITLE: Demo
+
+#+begin_src python :session :exports both
+from pyfreebody import freebody
+import math
+
+testObj = {
+    "name":"test"
+    "forces": [
+        {
+            "name": "Friction",
+            "magnitude": 20,
+            "theta": math.pi
+        },
+        {
+            "name": "Pull",
+            "magnitude": 10,
+            "theta": 0
+        },
+        {
+            "name": "Normal",
+            "magnitude": 20,
+            "theta": math.pi / 2
+        }
+    ]
+}
+
+"[[file:"+freebody.freebody(testObj)+"]]"
+#+end_src
+
+#+RESULTS:
+| file:pyfreebody-test.png |
