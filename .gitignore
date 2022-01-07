@@ -10,3 +10,5 @@ htmlcov
 
 
 sandbox
+pyfreebody.egg-info
+dist/
