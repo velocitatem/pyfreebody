@@ -6,6 +6,11 @@ Use the following Pypi package:
 #+begin_src bash
 pip3 install pyfreebody
 #+end_src
+*** Font Setup
+The font used in the diagram is sourced from /~\/pyfreebody.ttf/. You can use the following to download and setup the default font, or you can add your own by replacing the default one.
+#+begin_src bash
+curl -L https://github.com/danalves24com/pyfreebody/raw/main/SourceCodePro-Regular.ttf -o ~/pyfreebody.ttf
+#+end_src
 ** Importing
 pyFreeBody exports many components which you can summon from
 #+begin_src python
