@@ -5,57 +5,80 @@ from datetime import datetime
 import enum
 
 
+class Body:
+    def __init__(self, name, mass, sysType):
+        self.sysType = sysType
+        self.name = name
+        self.mass = mass
+        self.forces = []
+class Force:
+    def __init__(self, name, magnitude, theta):
+        self.name = name
+        self.magnitude = magnitude
+        self.theta = theta
+
 class Direction(enum.Enum):
     up = math.pi /2
     down = (3 * math.pi) / 2
     left = math.pi
     right = 0
 
+class SystemType(enum.Enum):
+    basic = 0
+    inclinedPlane = 1
+
 
 class Freebody:
 
-
-    def __init__ (self,name="empty", mass=24):
-        self.schema = {"name":"", "mass": 0, "forces":[]}
-        self.schema["name"] = name;
-        self.schema['mass'] = mass
-
+    def __init__ (self,name="empty", mass=24, sysType = SystemType.basic):
+        body = Body(name, mass, sysType)
+        self.body = body
 
     def addForce(self, name, magnitude, theta):
-        self.schema["forces"].append({"name":name,"magnitude":magnitude,"theta":theta.value})
+        v = theta
+        if type(v) == Direction:
+            v = theta.value
+        self.body.forces.append(Force(name, magnitude, v))
 
-    def setSchema(self, schema):
-        self.shema = schema
 
     def diagram(self):
 
-        img  = Image.new( mode = "RGB", size = (size, size), color = (225,225,225))
-        canvas = ImageDraw.Draw(img)
+        if(self.body.sysType == SystemType.basic):
 
-        mean = 0
-        for force in self.schema['forces']:
-            mean+=force['magnitude']
+            img  = Image.new( mode = "RGB", size = (size, size), color = (225,225,225))
+            canvas = ImageDraw.Draw(img)
 
-        mean /= len(self.schema['forces'])
-        print(mean)
-        i=0
+            sm = 0
+            for force in self.body.forces:
+                sm+=force.magnitude
 
-        for force in self.schema['forces']:
-            color = randomColor()
-            force['prop'] =  force['magnitude'] / mean
-            CreatArrow(canvas, force, color)
-            ForceLegend(canvas, force, i, color)
+            i=0
+            print(self.body.forces)
+            for force in self.body.forces:
+                color = randomColor()
+                force.prop =  force.magnitude / sm
+                print(force.prop)
+                CreatArrow(canvas, force, color)
+                ForceLegend(canvas, force, i, color)
 
-            i+=1
+                i+=1
 
-        canvas.rectangle(((center*0.8, center*0.8), (center*1.2, center*1.2)), outline = black, fill = black)
+            #TODO optional shapes
+            canvas.rectangle(((center*0.8, center*0.8), (center*1.2, center*1.2)),
+                             outline = black)
 
-        now = datetime.now()
-        dtstr = now.strftime("%d-%m-%Y %H:%M:%S")
-        path = "pyfreebody-"+self.schema['name']+".png"
-        img.save(path)
-        return path
-    #    img.show()
+            masstxt  = str(self.body.mass) + "kg"
+            mtsw, mtsh = canvas.textsize(masstxt, font = font)
+            canvas.text((center-(mtsw/2), center+(mtsh)), masstxt, fill = black, font = font)
+
+            canvas.text((10,size-30), str(self.body.name), fill = black, font = font)
+
+            now = datetime.now()
+            dtstr = now.strftime("%d-%m-%Y %H:%M:%S")
+            path = "pyfreebody-"+self.body.name+".png"
+            img.save(path)
+            return path
+        #    img.show()
 
 size = 600
 arrowHeadSize = 15
@@ -64,6 +87,7 @@ center = size / 2;
 rectW = size * 0.4
 
 black = (0,0,0)
+white = (225,225,225)
 
 font = ImageFont.truetype("/usr/share/fonts/noto/NotoSans-Regular.ttf", 20)
 
@@ -73,9 +97,9 @@ def randomColor():
           randint(0, 180))
 
 def ArrowCordinates(force):
-    theta = force['theta']
-    m = force['prop'] * 150
-    print(force['prop'])
+    theta = force.theta
+    m = force.prop * 100
+    m+=rectW/2
     yc = m * math.sin(theta)
     xc = m * math.cos(theta)
     return ((center, center), (center+ xc, center - yc))
@@ -94,10 +118,17 @@ def ArrowHeadCordinates(arrowCords):
         (x-arrowHeadSize, y + arrowHeadSize)
     )
 def ForceLegend(canvas, force, i, color):
-    text = force['name'] + " = " + str(force['magnitude']) + "N"
+    text = force.name + " Force = " + str(force.magnitude) + "N"
     canvas.text((5,5+i*20), text, fill = color, font = font)
 
 def CreatArrow(canvas, force, color):
     arrowBase = ArrowCordinates(force)
     canvas.line(arrowBase, width=10, fill = color)
     #canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
+
+body = Freebody("test1", 30, SystemType.basic) # name, mass
+
+body.addForce("Normal", 300, Direction.up) # name, magnitude, theta
+body.addForce("Pull", 2, math.pi /4 ) # name, magnitude, theta
+
+body.diagram() # creates the diagram
