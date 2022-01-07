@@ -1,0 +1,47 @@
+#+TITLE: pyFreeBody Documentation
+
+* Getting Started
+** Importing
+pyFreeBody exports many components which you can summon from
+#+begin_src python
+import pyfreebody
+#+end_src
+From /pyfreebody/ you can import the following:
++ Freebody
++ Direction
++ SystemType
+
+* Creating a Freebody Object
+#+begin_src python
+# name : what you want the Freebody system called
+# mass : mass of the object in context
+# type : the type of system
+body = Freebody(name, mass, SystemType.TYPE)
+#+end_src
+More on SystemType [[System Type]]
+
+* Data
+** System Type
+Currently supported system types are the following:
++ basic
+** Direction
+There are only 4 main directions implemented
++ up
++ down
++ left
++ right
+#+NAME: Implementation of direction up
+#+begin_src python
+body.addForce("Normal", 300, Direction.up) # name, magnitude, theta
+#+end_src
+* Complete Example
+#+NAME: freebody
+#+begin_src python :session Python3 :exports both :noweb yes :file pyfreebody-fbg1.png :results graphics file
+from pyfreebody.pyfreebody import Freebody, Direction, SystemType
+body = Freebody("fbg1", 30, SystemType.basic) # name, mass
+
+body.addForce("Normal", 300, Direction.up) # name, magnitude, theta
+body.addForce("Pull", 2, Direction.left ) # name, magnitude, theta
+
+body.diagram() # creates the diagram
+#+end_src
