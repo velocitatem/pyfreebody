@@ -2,6 +2,6 @@
 A free-body diagram generator for Python 🔲
 
 # Usage
-The following system setup produces the image under it.
+The following system setup produces [this output](./examples/simple.out.png)
 ![simple demo](./examples/simple.png)
-![simple demo reult](./examples/simple.out.png)
+
