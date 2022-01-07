@@ -2,25 +2,27 @@ from random import randint
 from PIL import Image, ImageDraw, ImageFont
 import math
 from datetime import datetime
+import enum
+
+
+class Direction(enum.Enum):
+    up = math.pi /2
+    down = (3 * math.pi) / 2
+    left = math.pi
+    right = 0
 
 
 class Freebody:
 
 
     def __init__ (self,name, mass):
-        self.mass = mass
-        _initSchema()
-        self.schema["name"] = name;
-        self.shema['mass'] = mass
-
-    def _initSchema(self):
         self.schema = {"name":"", "mass": 0, "forces":[]}
+        self.schema["name"] = name;
+        self.schema['mass'] = mass
+
 
     def addForce(self, name, magnitude, theta):
-        if self.schema == None:
-            _initSchema()
-        else:
-            self.schema["forces"].append({"name":name,"magnitude":magnitude,"theta":theta})
+        self.schema["forces"].append({"name":name,"magnitude":magnitude,"theta":theta.value})
 
     def setSchema(self, schema):
         self.shema = schema
@@ -50,7 +52,7 @@ class Freebody:
 
         now = datetime.now()
         dtstr = now.strftime("%d-%m-%Y %H:%M:%S")
-        path = "pyfreebody-"+schema['name']+".png"
+        path = "pyfreebody-"+self.schema['name']+".png"
         img.save(path)
         return path
     #    img.show()
