@@ -1,31 +1,37 @@
 #+TITLE: pyFreeBody Documentation
 
 * Getting Started
+** Install
+Use the following Pypi package:
+#+begin_src bash
+pip3 install pyfreebody
+#+end_src
 ** Importing
 pyFreeBody exports many components which you can summon from
 #+begin_src python
-import pyfreebody
+import pyfreebody.pyfreebody
 #+end_src
 From /pyfreebody/ you can import the following:
 + Freebody
 + Direction
 + SystemType
-
-* Creating a Freebody Object
 #+begin_src python
-# name : what you want the Freebody system called
-# mass : mass of the object in context
-# type : the type of system
-body = Freebody(name, mass, SystemType.TYPE)
+from pyfreebody.pyfreebody import Freebody, Direction, SystemType
 #+end_src
-More on SystemType [[System Type]]
+* Creating a Freebody Object
++ name : what you want the Freebody system called
++ mass : mass of the object in context
++ type : the type of system
+#+begin_src python
+body = Freebody("DiagramName", mass, SystemType.TYPE)
+#+end_src
 
 * Data
 ** System Type
-Currently supported system types are the following:
+A system type determines how the diagram will be shown. Currently supported system types are the following:
 + basic
 ** Direction
-There are only 4 main directions implemented
+Direction carries a theta value for the sake of easier implementation. There are only 4 main directions implemented:
 + up
 + down
 + left
@@ -34,6 +40,21 @@ There are only 4 main directions implemented
 #+begin_src python
 body.addForce("Normal", 300, Direction.up) # name, magnitude, theta
 #+end_src
+
+* Functions
+** Adding a force
+To add a force to the object in your diagram, use the following function. The function takes 3 parameters.
+#+begin_src python
+# magnitude : the strength of the force
+# theta : the angle the force makes with the horizontal
+body.addForce("ForceName", magnitude, theta)
+#+end_src
+** Creating the diagram
+To create the configuration the diagram, simply execute:
+#+begin_src python
+body.diagram()
+#+end_src
+This will save the diagram under /pyfreebody-DiagramName.png/
 * Complete Example
 #+NAME: freebody
 #+begin_src python :session Python3 :exports both :noweb yes :file pyfreebody-fbg1.png :results graphics file
