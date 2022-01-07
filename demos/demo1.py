@@ -1,4 +1,4 @@
-from pyfreebody import Freebody, Direction
+from pyfreebody.pyfreebody import Freebody, Direction
 import math
 
 
