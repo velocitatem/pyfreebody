@@ -1,5 +1,5 @@
 # pyFreeBody
-A free-body diagram generator for Python 🔲
+Sole most advanced and easiest free-body diagram generator for Python 🔲
 # Installation
 ```pip3 install pyfreebody```
 Continues in documentation
