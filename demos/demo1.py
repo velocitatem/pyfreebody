@@ -1,5 +1,6 @@
 from pyfreebody import Freebody, Direction
 
-body = Freebody("test", 30) # name, mass
-body.addForce("Normal", 300, Direction.up) # name, magnitude, theta
-body.diagram() # creates the diagram
+sysinc = math.pi/6
+body = Freebody("inclinedplane", 20, SystemType.inclinedPlane, sysinc)
+body.addForce("Normal", 200, sysinc + math.pi/2)
+body.diagram()

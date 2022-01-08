@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pyfreebody',
-    version='0.1.2',
+    version='0.1.4',
     author="Daniel Rosel",
     url="https://github.com/danalves24com/pyfreebody",
     packages=find_packages(include=['pyfreebody']),
