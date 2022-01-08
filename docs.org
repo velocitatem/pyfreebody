@@ -35,6 +35,22 @@ body = Freebody("DiagramName", mass, SystemType.TYPE)
 ** System Type
 A system type determines how the diagram will be shown. Currently supported system types are the following:
 + basic
++ inclinedPlane
+*** Inclined Plane
++ name
++ mass
++ type = inclinedPlane
++ incline(radians)
+#+begin_src python
+body = Freebody("DiagramName", mass, SystemType.inclinedPlane, math.pi/6)
+#+end_src
+*** Basic
++ name
++ mass
++ type = basic
+#+begin_src python
+body = Freebody("DiagramName", mass, SystemType.basic)
+#+end_src
 ** Direction
 Direction carries a theta value for the sake of easier implementation. There are only 4 main directions implemented:
 + up
