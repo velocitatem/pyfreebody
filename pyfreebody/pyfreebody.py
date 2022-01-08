@@ -160,7 +160,3 @@ def CreatArrow(canvas, force, color):
     canvas.text(tagCordinates(arrowBase), "F"+(force.name[0:1]).lower(), font=fontTag, fill = black)
     #canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
 
-sysinc = math.pi/6
-body = Freebody("inclinedplane", 20, SystemType.inclinedPlane, sysinc)
-body.addForce("Normal", 200, sysinc + math.pi/2)
-body.diagram()
