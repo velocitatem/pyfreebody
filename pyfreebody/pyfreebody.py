@@ -6,12 +6,17 @@ import enum
 import os
 
 
-class Body:
-    def __init__(self, name, mass, sysType):
+class System:
+    def __init__(self, sysType=SystemType.basic, incline=0):
         self.sysType = sysType
+        self.incline = incline
+
+class Body:
+    def __init__(self, name, mass):
         self.name = name
         self.mass = mass
         self.forces = []
+
 class Force:
     def __init__(self, name, magnitude, theta):
         self.name = name
@@ -28,11 +33,11 @@ class SystemType(enum.Enum):
     basic = 0
     inclinedPlane = 1
 
-
 class Freebody:
 
-    def __init__ (self,name="empty", mass=24, sysType = SystemType.basic):
-        body = Body(name, mass, sysType)
+    def __init__ (self,name="empty", mass=24, sysType = SystemType.basic, incline=math.pi/6):
+        body = Body(name, mass)
+        self.system = System(sysType, incline)
         self.body = body
 
     def addForce(self, name, magnitude, theta):
@@ -44,25 +49,23 @@ class Freebody:
 
     def diagram(self):
 
-        if(self.body.sysType == SystemType.basic):
+        img  = Image.new( mode = "RGB", size = (size, size), color = (225,225,225))
+        canvas = ImageDraw.Draw(img)
+        sm = 0
+        for force in self.body.forces:
+            sm+=force.magnitude
 
-            img  = Image.new( mode = "RGB", size = (size, size), color = (225,225,225))
-            canvas = ImageDraw.Draw(img)
+        i=0
+        print(self.body.forces)
+        for force in self.body.forces:
+            color = randomColor()
+            force.prop =  force.magnitude / sm
+            print(force.prop)
+            CreatArrow(canvas, force, color)
+            ForceLegend(canvas, force, i, color)
 
-            sm = 0
-            for force in self.body.forces:
-                sm+=force.magnitude
-
-            i=0
-            print(self.body.forces)
-            for force in self.body.forces:
-                color = randomColor()
-                force.prop =  force.magnitude / sm
-                print(force.prop)
-                CreatArrow(canvas, force, color)
-                ForceLegend(canvas, force, i, color)
-
-                i+=1
+            i+=1
+        if(self.system.sysType == SystemType.basic):
 
             canvas.rectangle(((center*0.8, center*0.8), (center*1.2, center*1.2)),
                              outline = black)
@@ -70,18 +73,34 @@ class Freebody:
             canvas.ellipse(((center*0.96, center*0.96), (center*1.04, center*1.04)),
                            outline = black, fill = black)
 
-            masstxt  = str(self.body.mass) + "kg"
-            mtsw, mtsh = canvas.textsize(masstxt, font = font)
-            canvas.text((center-(mtsw/2), center+(mtsh)), masstxt, fill = black, font = font)
 
-            canvas.text((10,size-30), str(self.body.name), fill = black, font = font)
-
-            now = datetime.now()
-            dtstr = now.strftime("%d-%m-%Y %H:%M:%S")
-            path = "pyfreebody-"+self.body.name+".png"
-            img.save(path)
-            return path
         #    img.show()
+        #
+        # BROKEN FOR THETA  >= PI/5
+        #
+        elif(self.system.sysType == SystemType.inclinedPlane):
+
+            theta = self.system.incline
+            theta = math.pi/2 - theta
+            rvw = center * 0.4;
+
+            vertices = makeRectangle(rvw, rvw, theta, offset=(center, center))
+            verticesPlane = makeRectangle(10, size*1.2, theta, offset=(center, center+rvw/1.9))
+
+            canvas.polygon(vertices, fill=white, outline = black)
+            canvas.polygon(verticesPlane, fill = 0)
+
+        masstxt  = str(self.body.mass) + "kg"
+        mtsw, mtsh = canvas.textsize(masstxt, font = font)
+        canvas.text((center-(mtsw/2), center+(mtsh/2)), masstxt, fill = black, font = font)
+
+        canvas.text((10,size-30), str(self.body.name), fill = black, font = font)
+        now = datetime.now()
+        dtstr = now.strftime("%d-%m-%Y %H:%M:%S")
+        path = "pyfreebody-"+self.body.name+".png"
+        img.save(path)
+        return path
+
 
 size = 600
 arrowHeadSize = 15
@@ -94,10 +113,12 @@ white = (225,225,225)
 
 home = os.path.expanduser("~")
 font = ImageFont.truetype(home+"/pyfreebody.ttf", 20)
-#font = ImageFont.load_default()
-#font.size = 20
 fontTag = ImageFont.truetype(home+"/pyfreebody.ttf", 12)
-#fontTag = font
+
+def makeRectangle(l, w, theta, offset=(0,0)):
+    c, s = math.cos(theta), math.sin(theta)
+    rectCoords = [(l/2.0, w/2.0), (l/2.0, -w/2.0), (-l/2.0, -w/2.0), (-l/2.0, w/2.0)]
+    return [(c*x-s*y+offset[0], s*x+c*y+offset[1]) for (x,y) in rectCoords]
 
 def randomColor():
     return (randint(0, 180),
@@ -139,9 +160,7 @@ def CreatArrow(canvas, force, color):
     canvas.text(tagCordinates(arrowBase), "F"+(force.name[0:1]).lower(), font=fontTag, fill = black)
     #canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
 
-body = Freebody("Demostration of pyFreeBody", 30, SystemType.basic) # name, mass
-
-body.addForce("Normal", 300, Direction.up) # name, magnitude, theta
-body.addForce("Pull", 2, math.pi /4 ) # name, magnitude, theta
-
-body.diagram() # creates the diagram
+sysinc = math.pi/6
+body = Freebody("inclinedplane", 20, SystemType.inclinedPlane, sysinc)
+body.addForce("Normal", 200, sysinc + math.pi/2)
+body.diagram()
