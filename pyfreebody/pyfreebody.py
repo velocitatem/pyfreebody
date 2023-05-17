@@ -5,6 +5,9 @@ from datetime import datetime
 import enum
 import os
 
+class SystemType(enum.Enum):
+    basic = 0
+    inclinedPlane = 1
 
 class System:
     def __init__(self, sysType=SystemType.basic, incline=0):
@@ -29,9 +32,6 @@ class Direction(enum.Enum):
     left = math.pi
     right = 0
 
-class SystemType(enum.Enum):
-    basic = 0
-    inclinedPlane = 1
 
 class Freebody:
 
@@ -99,6 +99,12 @@ class Freebody:
         dtstr = now.strftime("%d-%m-%Y %H:%M:%S")
         path = "pyfreebody-"+self.body.name+".png"
         img.save(path)
+        # try to open the image
+        try:
+            img.show()
+        except:
+            print("Image saved to: "+path)
+
         return path
 
 
@@ -111,7 +117,7 @@ rectW = size * 0.4
 black = (0,0,0)
 white = (225,225,225)
 
-home = os.path.expanduser("~")
+home = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
 font = ImageFont.truetype(home+"/pyfreebody.ttf", 20)
 fontTag = ImageFont.truetype(home+"/pyfreebody.ttf", 12)
 
@@ -159,4 +165,3 @@ def CreatArrow(canvas, force, color):
     canvas.line(arrowBase, width=10, fill = color)
     canvas.text(tagCordinates(arrowBase), "F"+(force.name[0:1]).lower(), font=fontTag, fill = black)
     #canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
-
