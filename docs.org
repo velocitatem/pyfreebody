@@ -61,7 +61,25 @@ Direction carries a theta value for the sake of easier implementation. There are
 #+begin_src python
 body.addForce("Normal", 300, Direction.up) # name, magnitude, theta
 #+end_src
-
+** Legend
+There are two ways to annotate, with full text in a legend at the top left,
+or with text and magnitudes written on the FBD. 
+#+begin_src python
+body = Freebody("DiagramName", mass, SystemType.basic, legend=LegendType.arrow)
+#+end_src
+This will override the default value `LegendType.default`.
+** Other options
+#+begin_src python
+body = Freebody("DiagramName", mass, SystemType.basic,color=pyfreebody.blueColorpath=fname) 
+#+end_src
+**** color
+can be provided by passing a function.
+The default function is in the module `pyfreebody.randomColor()`
+but you can also pass `blackColor` or `blueColor`
+or your own function that returns a three element tuple.
+**** path
+if unspecified the diagram will be saved to `pyfreebody-timestamp.png`,
+otherwise it will be saved to `fname`.
 * Functions
 ** Adding a force
 To add a force to the object in your diagram, use the following function. The function takes 3 parameters.
