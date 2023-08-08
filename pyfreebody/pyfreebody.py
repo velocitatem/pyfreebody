@@ -69,7 +69,7 @@ class Freebody:
 
     def diagram(self):
 
-        img  = Image.new( mode = "RGB", size = (size, size), color = (225,225,225))
+        img  = Image.new( mode = "RGB", size = (size, size), color = (255,255,255))
         canvas = ImageDraw.Draw(img)
         sm = 0
         for force in self.body.forces:
