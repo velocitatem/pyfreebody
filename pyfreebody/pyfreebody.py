@@ -2,10 +2,10 @@ from random import randint
 from PIL import Image, ImageDraw, ImageFont
 import math
 from datetime import datetime
-import enum
+from enum import Enum
 import os
 
-class SystemType(enum.Enum):
+class SystemType(Enum):
     basic = 0
     inclinedPlane = 1
 
@@ -21,24 +21,44 @@ class Body:
         self.forces = []
 
 class Force:
-    def __init__(self, name, magnitude, theta):
+    def __init__(self, name, magnitude, theta, units="N"):
         self.name = name
         self.magnitude = magnitude
         self.theta = theta
+        self.units = units
 
-class Direction(enum.Enum):
+class Direction(Enum):
     up = math.pi /2
     down = (3 * math.pi) / 2
     left = math.pi
     right = 0
 
+class LegendType(Enum):
+    default = 0 # text on top left
+    arrow = 1   # text and number with arrow
+
+def randomColor():
+    return (randint(0, 180),
+          randint(0, 180),
+          randint(0, 180))
+
+def blackColor():
+    return black
+
+def blueColor():
+    return (0, 20, 200)
 
 class Freebody:
 
-    def __init__ (self,name="empty", mass=24, sysType = SystemType.basic, incline=math.pi/6):
+    def __init__ (self, name="empty", mass=24, sysType = SystemType.basic, incline=math.pi/6, arrows=False, 
+                  color=randomColor, legend=LegendType.default, path=None):
         body = Body(name, mass)
         self.system = System(sysType, incline)
         self.body = body
+        self.arrows = arrows
+        self.color_fn = color
+        self.legend = legend
+        self.path = path
 
     def addForce(self, name, magnitude, theta):
         v = theta
@@ -49,22 +69,13 @@ class Freebody:
 
     def diagram(self):
 
-        img  = Image.new( mode = "RGB", size = (size, size), color = (225,225,225))
+        img  = Image.new( mode = "RGB", size = (size, size), color = (255,255,255))
         canvas = ImageDraw.Draw(img)
         sm = 0
         for force in self.body.forces:
-            sm+=force.magnitude
+            sm += force.magnitude
 
-        i=0
-        print(self.body.forces)
-        for force in self.body.forces:
-            color = randomColor()
-            force.prop =  force.magnitude / sm
-            print(force.prop)
-            CreatArrow(canvas, force, color)
-            ForceLegend(canvas, force, i, color)
 
-            i+=1
         if(self.system.sysType == SystemType.basic):
 
             canvas.rectangle(((center*0.8, center*0.8), (center*1.2, center*1.2)),
@@ -82,22 +93,44 @@ class Freebody:
 
             theta = self.system.incline
             theta = math.pi/2 - theta
-            rvw = center * 0.4;
+            rvw = center * 0.4
+            inclineoffy = rvw/2/abs(math.sin(theta)) if theta % (math.pi/2) != 0 else 0 # catch vertical inclined planed
+            inclineoffx = 0 if theta % (math.pi/2) != 0 else rvw/2
 
             vertices = makeRectangle(rvw, rvw, theta, offset=(center, center))
-            verticesPlane = makeRectangle(10, size*1.2, theta, offset=(center, center+rvw/1.9))
+            verticesPlane = makeRectangle(3, size*1.2, theta, offset=(center-inclineoffx, center+inclineoffy))
 
             canvas.polygon(vertices, fill=white, outline = black)
             canvas.polygon(verticesPlane, fill = 0)
 
-        masstxt  = str(self.body.mass) + "kg"
+        try:
+            masstxt = self.body.mass.title()
+        except AttributeError:
+            masstxt  = str(self.body.mass) + "kg"
         mtsw, mtsh = canvas.textsize(masstxt, font = font)
         canvas.text((center-(mtsw/2), center+(mtsh/2)), masstxt, fill = black, font = font)
 
-        canvas.text((10,size-30), str(self.body.name), fill = black, font = font)
-        now = datetime.now()
-        dtstr = now.strftime("%d-%m-%Y %H:%M:%S")
-        path = "pyfreebody-"+self.body.name+".png"
+        if self.body.name != "":
+            canvas.text((10,size-30), str(self.body.name), fill = black, font = font)
+        
+        
+        i=0
+        print(self.body.forces)
+        for force in self.body.forces:
+            color = self.color_fn()
+            force.prop =  force.magnitude / sm
+            print(force.prop)
+            CreatArrow(canvas, force, color, arrow=self.arrows, label=self.legend)
+            if self.legend == LegendType.default:
+                ForceLegend(canvas, force, i, color)
+            i+=1
+        
+        if self.path is not None:
+            path = self.path
+        else:
+            now = datetime.now()
+            dtstr = now.strftime("%d-%m-%Y %H:%M:%S")
+            path = "pyfreebody-"+self.body.name+".png"
         img.save(path)
         # try to open the image
         try:
@@ -126,42 +159,71 @@ def makeRectangle(l, w, theta, offset=(0,0)):
     rectCoords = [(l/2.0, w/2.0), (l/2.0, -w/2.0), (-l/2.0, -w/2.0), (-l/2.0, w/2.0)]
     return [(c*x-s*y+offset[0], s*x+c*y+offset[1]) for (x,y) in rectCoords]
 
-def randomColor():
-    return (randint(0, 180),
-          randint(0, 180),
-          randint(0, 180))
 
 def ArrowCordinates(force):
     theta = force.theta
     m = force.prop * 100
-    m+=rectW/2
+    # m+=rectW/2
+    xrc = rectW/4 * math.cos(theta)
+    yrc = rectW/4 * math.sin(theta)
     yc = m * math.sin(theta)
     xc = m * math.cos(theta)
-    return ((center, center), (center+ xc, center - yc))
+    return ((center+xrc, center-yrc), (center+xrc+xc, center-yrc - yc))
 
 
 def tagCordinates(arrowCords):
-    x, y = arrowCords[1][0], arrowCords[1][1]
-    return ((x*1.06), (y*1.06))
+    tip_x, tip_y = arrowCords[1][0], arrowCords[1][1]
+    try:
+        theta = math.atan((tip_y-center)/(tip_x-center))
+    except ZeroDivisionError:
+        theta = math.pi/2 if tip_y > center else -math.pi/2
+    if tip_y == center and tip_x < center:
+        theta = math.pi
+    dx = arrowHeadSize * math.cos(theta)
+    dy = arrowHeadSize * math.sin(theta)
+    return (tip_x+dx, tip_y+dy)
 
-# faulty
-def ArrowHeadCordinates(arrowCords):
-    x, y = arrowCords[1][0], arrowCords[1][1]
-    dx = arrowHeadSize * math.cos(math.pi/4)
-    dy = (2 * arrowHeadSize * math.sin(math.pi/4))/2
-    print(dx, dy)
-    print(x, y)
+def tagAlign(theta):
+    theta = theta % (2*math.pi)
+    if theta < math.pi/8:
+        return "lm"
+    elif theta < math.pi/3:
+        return "ld" # 'b'ottom and 't'op codes don't work with multiline, use 'd'escender and 'a'scender instead
+    elif theta < 2*math.pi/3:
+        return "md"
+    elif theta < (9./8) * math.pi:
+        return "rm"
+    elif theta < (4./3)*math.pi:
+        return "ra"
+    elif theta < (5./3)*math.pi:
+        return "ma"
+    else:
+        return "lm"
+
+def ArrowHeadCordinates(arrow):
+    arrow_x, arrow_y = arrow[1][0] - arrow[0][0], arrow[1][1] - arrow[0][1]
+    arrow_len = math.sqrt(arrow_x * arrow_x + arrow_y * arrow_y)
+    arrow_unit_v = (arrow_x/arrow_len, arrow_y/arrow_len)
+    dx, dy = arrow_unit_v[0] * arrowHeadSize, arrow_unit_v[1] * arrowHeadSize
+    tip_x, tip_y = arrow[1][0], arrow[1][1]
+#    print(dx, dy)
+#    print(tip_x, tip_y)
     return (
-        (x-dx, y + dy),
-        (x+dx, y - dy),
-        (x-arrowHeadSize, y + arrowHeadSize)
+        (tip_x+dx, tip_y + dy), # arrow tip
+        (tip_x-dy, tip_y + dx),
+        (tip_x+dy, tip_y - dx)
     )
+
 def ForceLegend(canvas, force, i, color):
-    text = force.name + " Force = " + str(force.magnitude) + "N"
+    text = f"{force.name}  Force =  {str(force.magnitude)} {force.units}"
     canvas.text((5,5+i*20), text, fill = color, font = font)
 
-def CreatArrow(canvas, force, color):
+def CreatArrow(canvas, force, color, arrow=True, label = LegendType.default):
     arrowBase = ArrowCordinates(force)
     canvas.line(arrowBase, width=10, fill = color)
-    canvas.text(tagCordinates(arrowBase), "F"+(force.name[0:1]).lower(), font=fontTag, fill = black)
-    #canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
+    ltext =f"F{force.name[0:1].lower()}" if label == LegendType.default else f"{force.name}\n{str(force.magnitude)} {force.units}"
+    arrow_font = fontTag if label == LegendType.default else font
+    canvas.text(tagCordinates(arrowBase), ltext, font=arrow_font, fill = black, anchor=tagAlign(force.theta))
+    if arrow:
+        canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
+
