@@ -4,12 +4,12 @@ from setuptools import setup, find_packages
 
 setup(
     name='pyfreebody',
-    version='0.3.0',
+    version='0.3.2',
     author="Daniel Rosel",
-    url="https://github.com/danalves24com/pyfreebody",
+    url="https://github.com/velocitatem/pyfreebody",
     packages=find_packages(include=['pyfreebody']),
         install_requires=[
-            "Pillow"
+            'Pillow==9.5.0',
         ]
 
 )
