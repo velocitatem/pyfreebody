@@ -1,0 +1,16 @@
+name: Hacktber Shield
+on:
+  pull_request:
+    types: [opened, synchronize]
+jobs:
+  hacktoberShieldJob:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Use HacktoberShield Action
+        uses: velocitatem/HacktoberShield@main  # or specify a tag version instead of "main"
+        with:
+          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
