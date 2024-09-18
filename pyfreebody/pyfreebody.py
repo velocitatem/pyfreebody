@@ -243,11 +243,3 @@ def CreatArrow(canvas, force, color, arrow=True, label = LegendType.default):
     canvas.text(tagCordinates(arrowBase), ltext, font=arrow_font, fill = black, anchor=tagAlign(force.theta))
     if arrow:
         canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
-
-
-# example:
-fb = Freebody(name="Block", mass=10, sysType=SystemType.inclinedPlane, incline=math.pi/6, arrows=True)
-fb.addForce("gravity", 10, Direction.down)
-fb.addForce("normal", 10, Direction.up)
-
-fb.diagram()
