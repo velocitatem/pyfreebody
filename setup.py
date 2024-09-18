@@ -7,7 +7,7 @@ setup(
     version='0.4.1',
     author="Daniel Rosel",
     url="https://github.com/velocitatem/pyfreebody",
-    packages=find_packages(include=['pyfreebody']),
+    packages=find_packages(),
         install_requires=[
             'Pillow==10.4.0',
         ]
