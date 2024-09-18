@@ -10,7 +10,7 @@ class SystemType(Enum):
     inclinedPlane = 1
 
 class System:
-    def __init__(self, sysType=SystemType.basic, incline=0):
+    def __init__(self, sysType=SystemType.basic, incline:float=0):
         self.sysType = sysType
         self.incline = incline
 
@@ -50,7 +50,7 @@ def blueColor():
 
 class Freebody:
 
-    def __init__ (self, name="empty", mass=24, sysType = SystemType.basic, incline=math.pi/6, arrows=False, 
+    def __init__ (self, name="empty", mass=24, sysType = SystemType.basic, incline=math.pi/6, arrows=False,
                   color=randomColor, legend=LegendType.default, path=None):
         body = Body(name, mass)
         self.system = System(sysType, incline)
@@ -103,17 +103,25 @@ class Freebody:
             canvas.polygon(vertices, fill=white, outline = black)
             canvas.polygon(verticesPlane, fill = 0)
 
+        def get_text_dimensions(text_string, font):
+            # https://stackoverflow.com/a/46220683/9263761
+            ascent, descent = font.getmetrics()
+
+            text_width = font.getmask(text_string).getbbox()[2]
+            text_height = font.getmask(text_string).getbbox()[3] + descent
+
+            return (text_width, text_height)
         try:
             masstxt = self.body.mass.title()
         except AttributeError:
-            masstxt  = str(self.body.mass) + "kg"
-        mtsw, mtsh = canvas.textsize(masstxt, font = font)
-        canvas.text((center-(mtsw/2), center+(mtsh/2)), masstxt, fill = black, font = font)
+            masstxt = str(self.body.mass) + "kg"
+        mtsw, mtsh = get_text_dimensions(masstxt, font)
+        canvas.text((center - (mtsw / 2), center + (mtsh / 2)), masstxt, fill=black, font=font)
 
         if self.body.name != "":
-            canvas.text((10,size-30), str(self.body.name), fill = black, font = font)
-        
-        
+            canvas.text((10,size-30), str(self.body.name), fill = black)
+
+
         i=0
         print(self.body.forces)
         for force in self.body.forces:
@@ -124,7 +132,7 @@ class Freebody:
             if self.legend == LegendType.default:
                 ForceLegend(canvas, force, i, color)
             i+=1
-        
+
         if self.path is not None:
             path = self.path
         else:
@@ -150,9 +158,18 @@ rectW = size * 0.4
 black = (0,0,0)
 white = (225,225,225)
 
-home = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
-font = ImageFont.truetype(home+"/pyfreebody.ttf", 20)
-fontTag = ImageFont.truetype(home+"/pyfreebody.ttf", 12)
+
+try:
+    font = ImageFont.truetype("arial.ttf", 20)
+    fontTag = ImageFont.truetype("arial.ttf", 12)
+except IOError:
+    font = ImageFont.load_default()
+    fontTag = ImageFont.load_default()
+
+
+# home = os.path.dirname(os.path.abspath(__file__)) #<-- absolute dir the script is in
+# font = ImageFont.truetype(home+"/pyfreebody.ttf", 20)
+# fontTag = ImageFont.truetype(home+"/pyfreebody.ttf", 12)
 
 def makeRectangle(l, w, theta, offset=(0,0)):
     c, s = math.cos(theta), math.sin(theta)
@@ -227,3 +244,10 @@ def CreatArrow(canvas, force, color, arrow=True, label = LegendType.default):
     if arrow:
         canvas.polygon(ArrowHeadCordinates(arrowBase), fill = color)
 
+
+# example:
+fb = Freebody(name="Block", mass=10, sysType=SystemType.inclinedPlane, incline=math.pi/6, arrows=True)
+fb.addForce("gravity", 10, Direction.down)
+fb.addForce("normal", 10, Direction.up)
+
+fb.diagram()

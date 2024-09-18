@@ -9,7 +9,7 @@ setup(
     url="https://github.com/velocitatem/pyfreebody",
     packages=find_packages(include=['pyfreebody']),
         install_requires=[
-            'Pillow==9.5.0',
+            'Pillow',
         ]
 
 )
