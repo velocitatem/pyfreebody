@@ -249,6 +249,7 @@ fb = Freebody(arrows=True)
 
 This combined might produce something like:
 
+![Untitled](https://github.com/user-attachments/assets/8335dfb0-aa01-4bf4-96c6-fa9aa45fb0e0)
 
 ## Troubleshooting
 
