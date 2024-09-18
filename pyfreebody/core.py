@@ -67,6 +67,13 @@ class Freebody:
         self.body.forces.append(Force(name, magnitude, v))
 
 
+    def show(self):
+        path = self.diagram()
+        # open and return to be able to view in jupyternb
+        return Image.open(path)
+
+
+
     def diagram(self):
 
         img  = Image.new( mode = "RGB", size = (size, size), color = (255,255,255))
@@ -123,11 +130,9 @@ class Freebody:
 
 
         i=0
-        print(self.body.forces)
         for force in self.body.forces:
             color = self.color_fn()
             force.prop =  force.magnitude / sm
-            print(force.prop)
             CreatArrow(canvas, force, color, arrow=self.arrows, label=self.legend)
             if self.legend == LegendType.default:
                 ForceLegend(canvas, force, i, color)
